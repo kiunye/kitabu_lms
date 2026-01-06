@@ -1,0 +1,81 @@
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: kitabu_postgres
+    environment:
+      POSTGRES_USER: kitabu
+      POSTGRES_PASSWORD: kitabu_secret
+      POSTGRES_DB: kitabu_lms_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kitabu -d kitabu_lms_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: kitabu_redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: kitabu_app
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://kitabu:kitabu_secret@postgres:5432/kitabu_lms_dev
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-dev_secret_key_base_at_least_64_characters_long_for_development_only}
+      MIX_ENV: dev
+      PORT: 4000
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - mix_cache:/root/.cache
+    command: ["mix", "phx.server"]
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    container_name: kitabu_pgbouncer
+    environment:
+      DB_USER: kitabu
+      DB_PASSWORD: kitabu_secret
+      DB_HOST: postgres
+      DB_NAME: kitabu_lms_dev
+      MAX_CLIENT_CONN: 200
+      DEFAULT_POOL_SIZE: 20
+      POOL_MODE: transaction
+      SERVER_IDLE_TIMEOUT: 600
+      SERVER_RESET_QUERY: DISCARD ALL
+    ports:
+      - "6432:6432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+  mix_cache:

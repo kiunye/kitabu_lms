@@ -1,0 +1,29 @@
+FROM elixir:1.18-alpine
+
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+
+ENV MIX_ENV=dev \
+    LANG=en_US.UTF-8
+
+WORKDIR /app
+
+RUN apk add --no-cache nodejs npm git inotify-tools postgresql-client
+
+RUN addgroup -g ${GROUP_ID} -S elixir && \
+    adduser -S elixir -u ${USER_ID} -G elixir
+
+RUN npm install -g tailwindcss
+
+RUN mkdir -p /app/deps && chown -R elixir:elixir /app
+
+USER elixir
+
+COPY mix.exs mix.lock ./
+RUN mix deps.get
+
+COPY . .
+
+EXPOSE 4000
+
+CMD ["mix", "phx.server"]
