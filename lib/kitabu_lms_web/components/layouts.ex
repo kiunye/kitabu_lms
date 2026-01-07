@@ -64,12 +64,13 @@ defmodule KitabuLmsWeb.Layouts do
             <.primary_button navigate={~p"/join"} class="hidden sm:inline-flex">
               Join Now
             </.primary_button>
-            <.link
-              navigate={~p"/mobile-menu"}
+            <button
+              type="button"
               class="md:hidden p-2 text-neutral-600 hover:text-primary-600"
+              aria-label="Open menu"
             >
               <.icon name="hero-bars-3" class="w-6 h-6" />
-            </.link>
+            </button>
           </div>
         </div>
       </nav>

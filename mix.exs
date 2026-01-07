@@ -75,7 +75,8 @@ defmodule KitabuLms.MixProject do
       {:money, "~> 1.13"},
       {:stripity_stripe, "~> 2.17"},
       {:corsica, "~> 2.0"},
-      {:bamboo, "~> 2.3"}
+      {:bamboo, "~> 2.3"},
+      {:dotenv_parser, "~> 2.0", only: [:dev, :test]}
     ]
   end
 

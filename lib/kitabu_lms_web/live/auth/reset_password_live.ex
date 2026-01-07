@@ -151,17 +151,17 @@ defmodule KitabuLmsWeb.Auth.ResetPasswordLive do
          form: to_form(params),
          error_message: "Passwords do not match"
        )}
-    end
+    else
+      case reset_password(socket.assigns.token, password) do
+        {:ok, _user} ->
+          {:noreply, assign(socket, submitted: true)}
 
-    case reset_password(socket.assigns.token, password) do
-      {:ok, _user} ->
-        {:noreply, assign(socket, submitted: true)}
-
-      {:error, reason} ->
-        {:noreply,
-         assign(socket,
-           error_message: reason
-         )}
+        {:error, reason} ->
+          {:noreply,
+           assign(socket,
+             error_message: reason
+           )}
+      end
     end
   end
 
@@ -176,7 +176,7 @@ defmodule KitabuLmsWeb.Auth.ResetPasswordLive do
     end
   end
 
-  defp reset_password(_token, _password) do
+  defp reset_password(_token, password) do
     # TODO: Implement actual password reset
     # This would:
     # 1. Verify the token is valid and not expired
@@ -184,7 +184,11 @@ defmodule KitabuLmsWeb.Auth.ResetPasswordLive do
     # 3. Update the user's password
     # 4. Invalidate the reset token
 
-    # Simulate successful password reset
-    {:ok, nil}
+    # Simulate password reset - check for minimum length
+    if String.length(password) >= 8 do
+      {:ok, nil}
+    else
+      {:error, "Password must be at least 8 characters"}
+    end
   end
 end

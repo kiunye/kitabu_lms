@@ -7,7 +7,8 @@ defmodule KitabuLmsWeb.Instructor.CourseEditLive do
   import KitabuLmsWeb.Instructor.Components
 
   alias KitabuLms.Courses
-  alias KitabuLms.Courses.{Course, Module, Lesson}
+  alias KitabuLms.Courses.Module, as: CourseModule
+  alias KitabuLms.Courses.Lesson
 
   def mount(%{"id" => id}, _session, socket) do
     course = Courses.get_course!(id)
@@ -25,7 +26,7 @@ defmodule KitabuLmsWeb.Instructor.CourseEditLive do
 
   def handle_event("select_module", %{"module-id" => module_id}, socket) do
     module = Courses.get_module!(module_id)
-    lessons = Course.ordered(Courses.Lesson.by_module(module.id))
+    lessons = Lesson.ordered(Lesson.by_module(module.id)) |> KitabuLms.Repo.all()
 
     {:noreply,
      assign(socket,
@@ -81,7 +82,9 @@ defmodule KitabuLmsWeb.Instructor.CourseEditLive do
 
     case Courses.create_lesson(lesson_params) do
       {:ok, lesson} ->
-        lessons = Course.ordered(Courses.Lesson.by_module(socket.assigns.selected_module.id))
+        lessons =
+          Lesson.ordered(Lesson.by_module(socket.assigns.selected_module.id))
+          |> KitabuLms.Repo.all()
 
         {:noreply,
          assign(socket,
@@ -119,7 +122,9 @@ defmodule KitabuLmsWeb.Instructor.CourseEditLive do
 
     case Courses.delete_lesson(lesson) do
       {:ok, _} ->
-        lessons = Course.ordered(Courses.Lesson.by_module(socket.assigns.selected_module.id))
+        lessons =
+          Lesson.ordered(Lesson.by_module(socket.assigns.selected_module.id))
+          |> KitabuLms.Repo.all()
 
         {:noreply,
          assign(socket,
@@ -133,7 +138,7 @@ defmodule KitabuLmsWeb.Instructor.CourseEditLive do
   end
 
   defp list_modules(course_id) do
-    Course.ordered(Courses.Module.by_course(course_id))
+    CourseModule.ordered(CourseModule.by_course(course_id))
     |> KitabuLms.Repo.all()
   end
 
@@ -342,7 +347,7 @@ defmodule KitabuLmsWeb.Instructor.CourseEditLive do
 
         <div class="space-y-2">
           <.link
-            navigate={~p"/instructor/courses/#{@course.id}/students"}
+            navigate={~p"/instructor/students"}
             class="flex items-center gap-3 p-3 rounded-xl hover:bg-neutral-50 transition-colors"
           >
             <.icon name="hero-users" class="w-5 h-5 text-neutral-400" />
@@ -350,7 +355,7 @@ defmodule KitabuLmsWeb.Instructor.CourseEditLive do
           </.link>
 
           <.link
-            navigate={~p"/instructor/courses/#{@course.id}/analytics"}
+            navigate={~p"/instructor/analytics"}
             class="flex items-center gap-3 p-3 rounded-xl hover:bg-neutral-50 transition-colors"
           >
             <.icon name="hero-chart-bar" class="w-5 h-5 text-neutral-400" />

@@ -84,6 +84,7 @@ defmodule KitabuLmsWeb.Instructor.Components do
   attr(:active, :boolean, default: false)
   attr(:navigate, :any, required: true)
   attr(:class, :string, default: "")
+  slot(:inner_block, required: true)
 
   def instructor_nav_link(assigns) do
     ~H"""
@@ -155,12 +156,13 @@ defmodule KitabuLmsWeb.Instructor.Components do
   attr(:color, :string, default: "primary")
 
   def stat_card(assigns) do
-    color_classes = %{
-      "primary" => "bg-primary-50 text-primary-600",
-      "secondary" => "bg-secondary-50 text-secondary-600",
-      "green" => "bg-green-50 text-green-600",
-      "blue" => "bg-blue-50 text-blue-600"
-    }
+    assigns =
+      assign(assigns, :color_classes, %{
+        "primary" => "bg-primary-50 text-primary-600",
+        "secondary" => "bg-secondary-50 text-secondary-600",
+        "green" => "bg-green-50 text-green-600",
+        "blue" => "bg-blue-50 text-blue-600"
+      })
 
     ~H"""
     <div class="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5">
@@ -171,7 +173,7 @@ defmodule KitabuLmsWeb.Instructor.Components do
         </div>
         <div class={[
           "w-12 h-12 rounded-xl flex items-center justify-center",
-          color_classes[@color]
+          @color_classes[@color]
         ]}>
           <.icon name={@icon} class="w-6 h-6" />
         </div>

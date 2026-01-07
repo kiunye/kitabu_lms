@@ -84,7 +84,8 @@ defmodule KitabuLmsWeb.AuthController do
   defp parse_expiry(nil), do: nil
 
   defp parse_expiry({_sign, {{year, month, day}, {hour, min, sec}}}) do
-    DateTime.from_erl({{year, month, day}, {hour, min, sec}})
+    NaiveDateTime.new!(year, month, day, hour, min, sec)
+    |> DateTime.from_naive!("Etc/UTC")
   end
 
   defp parse_expiry(seconds) when is_integer(seconds) do

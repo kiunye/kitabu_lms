@@ -7,7 +7,6 @@ defmodule KitabuLmsWeb.Instructor.DashboardLive do
   import Ecto.Query
   import KitabuLmsWeb.Instructor.Components
 
-  alias KitabuLms.Courses
   alias KitabuLms.Courses.Course
 
   def mount(_params, _session, socket) do

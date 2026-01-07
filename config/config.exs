@@ -4,6 +4,30 @@
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
 
+# Load .env file in development and test environments
+if Mix.env() in [:dev, :test] do
+  env_file = Path.join([__DIR__, "..", ".env"])
+
+  if File.exists?(env_file) do
+    env_file
+    |> File.read!()
+    |> String.split("\n")
+    |> Enum.each(fn line ->
+      line = String.trim(line)
+
+      if line != "" and not String.starts_with?(line, "#") and String.contains?(line, "=") do
+        [key | value_parts] = String.split(line, "=", parts: 2)
+        key = String.trim(key)
+        value = String.trim(Enum.join(value_parts, "="))
+        # Remove quotes if present
+        value = String.trim(value, "\"")
+        value = String.trim(value, "'")
+        System.put_env(key, value)
+      end
+    end)
+  end
+end
+
 # General application configuration
 import Config
 

@@ -3,7 +3,6 @@ defmodule KitabuLms.Courses do
   The Courses context.
   """
 
-  import Ecto.Query
   alias KitabuLms.Repo
 
   alias KitabuLms.Courses.Course
